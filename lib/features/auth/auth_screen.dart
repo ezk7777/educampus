@@ -22,7 +22,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
     if (user != null && mounted) {
       // Redirection vers HomeScreen après succès
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Erreur de connexion")));
     }
@@ -35,7 +35,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
     if (user != null && mounted) {
       // Redirection vers HomeScreen après succès
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Erreur lors de l'inscription")));
     }

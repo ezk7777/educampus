@@ -1,43 +1,51 @@
 import 'package:flutter/material.dart';
-import 'course_detail_screen.dart'; // Import indispensable pour la navigation
+import 'package:cloud_firestore/cloud_firestore.dart'; // <--- Ajoute cet import
+import '../auth/auth_service.dart';
+import '../auth/auth_screen.dart';
+import 'course_detail_screen.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  // Tes 5 cours
-  final List<String> courses = const [
-    "Introduction à la Programmation",
-    "Développement Web avec Vue.js",
-    "Architecture des Bases de données",
-    "Sécurité Informatique",
-    "Projet Hackathon : Décarbonisation",
-  ];
+   HomeScreen({super.key});
+  final AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Mes Cours - EduCampus")),
-      body: ListView.builder(
-        itemCount: courses.length,
-        itemBuilder: (context, index) {
-          return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            child: ListTile(
-              leading: const Icon(Icons.book, color: Colors.blue),
-              title: Text(courses[index]),
-              trailing: const Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                // Navigation vers la page de détails avec le titre du cours
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CourseDetailScreen(
-                      courseTitle: courses[index],
-                    ),
-                  ),
-                );
-              },
-            ),
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        title: const Text("EduCampus"),
+        actions: [
+          IconButton(icon: const Icon(Icons.logout), onPressed: () async {
+            await _authService.signOut();
+            if (context.mounted) Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AuthScreen()));
+          })
+        ],
+      ),
+      // StreamBuilder écoute ta collection "courses" dans Firestore
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('courses').snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          
+          final docs = snapshot.data!.docs;
+
+          return ListView.builder(
+            itemCount: docs.length,
+            itemBuilder: (context, index) {
+              final data = docs[index].data() as Map<String, dynamic>;
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                elevation: 3,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                child: ListTile(
+                  title: Text(data['title'] ?? 'Sans titre'),
+                  subtitle: Text("Progression : ${data['progress'] ?? '0%'}"),
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => CourseDetailScreen(courseTitle: data['title'])));
+                  },
+                ),
+              );
+            },
           );
         },
       ),
