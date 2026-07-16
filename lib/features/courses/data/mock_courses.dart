@@ -461,4 +461,339 @@ Dans Cloud Firestore, toutes les requêtes sont indexées par défaut. Cela sign
       ],
     ),
   ),
+  Course(
+    id: 'vue_js',
+    title: 'Développement Web Moderne avec Vue.js',
+    description: 'Découvrez Vue.js 3, de l\'initialisation de projets à la Composition API, pour créer des applications web dynamiques et réactives.',
+    duration: '3 heures',
+    category: 'Web',
+    lessons: [
+      Lesson(
+        id: 'vue_js_intro',
+        title: 'Introduction à Vue.js & Composition API',
+        content: '''# Introduction à Vue.js & Composition API
+
+Vue.js est un framework JavaScript progressif pour la construction d'interfaces utilisateur. La version 3 introduit la **Composition API**, qui propose une alternative plus flexible et modulaire à l'Options API historique.
+
+## Les deux approches :
+
+1. **Options API** : Les données, les méthodes et les propriétés calculées sont déclarées dans des options séparées (`data`, `methods`, `computed`). C'est simple et bien structuré pour de petits composants.
+2. **Composition API** : Utilise la fonction `setup()` pour regrouper la logique par fonctionnalité plutôt que par type d'options. Elle permet une meilleure réutilisabilité du code grâce aux *Composables*.
+
+---
+
+## La Réactivité avec `ref` et `reactive` :
+
+Vue 3 utilise sous le capot des **Proxies ES6** pour intercepter les modifications de données.
+
+* **`ref`** : Conçu principalement pour les types primitifs (String, Number, Boolean) mais fonctionne aussi pour les objets. Pour accéder ou modifier la valeur en JS, il faut utiliser la propriété `.value`.
+  ```javascript
+  import { ref } from 'vue';
+  const count = ref(0);
+  count.value++; // incrémentation
+  ```
+* **`reactive`** : Conçu exclusivement pour les objets et collections. Il ne nécessite pas l'utilisation de `.value` mais perd la réactivité si l'objet est destructuré ou réassigné.
+  ```javascript
+  import { reactive } from 'vue';
+  const state = reactive({ count: 0 });
+  state.count++;
+  ```''',
+      ),
+      Lesson(
+        id: 'vue_js_directives',
+        title: 'Les Directives Vue (v-bind, v-model...)',
+        content: '''# Les Directives Vue.js
+
+Les directives sont des attributs spéciaux préfixés par `v-` qui appliquent des comportements réactifs au DOM lorsque la valeur de l'expression change.
+
+## 1. Liaison d'attributs avec `v-bind` (ou `:`)
+Permet de lier dynamiquement un attribut HTML à une variable JS (par exemple une image source ou une classe CSS).
+```html
+<img :src="imageUrl" :alt="imageTitle" />
+```
+
+## 2. Liaison bidirectionnelle avec `v-model`
+Permet de synchroniser instantanément la valeur d'une entrée utilisateur (input, checkbox) avec une variable réactive.
+```html
+<input v-model="username" placeholder="Saisir votre nom" />
+<p>Bonjour {{ username }} !</p>
+```
+
+## 3. Rendu conditionnel et boucles
+* **`v-if` / `v-else`** : Ajoute ou retire physiquement l'élément du DOM en fonction d'une condition.
+* **`v-show`** : Masque ou affiche l'élément en modifiant uniquement sa propriété CSS `display: none`.
+* **`v-for`** : Répète un élément HTML pour chaque élément d'un tableau. Nécessite obligatoirement une clé unique `:key` pour optimiser le rendu.
+```html
+<ul>
+  <li v-for="item in items" :key="item.id">{{ item.name }}</li>
+</ul>
+```''',
+      ),
+      Lesson(
+        id: 'vue_js_components',
+        title: 'Composants & Communication (Props/Events)',
+        content: '''# Gestion des Composants et Communication
+
+Dans Vue, les applications sont structurées en composants réutilisables. Pour communiquer entre eux, on utilise le principe : **"Props down, Events up"**.
+
+## 1. Props : Envoyer des données à un enfant
+Les props sont des attributs personnalisés enregistrés sur un composant. Les données descendent du parent vers l'enfant de manière descendante et unidirectionnelle (l'enfant ne doit jamais modifier ses props directement).
+
+*Dans le parent :*
+```html
+<ChildComponent message="Bonjour mon enfant !" :score="42" />
+```
+
+*Dans l'enfant (Composition API) :*
+```javascript
+defineProps({
+  message: String,
+  score: Number
+});
+```
+
+---
+
+## 2. Événements (\$emit) : Envoyer des données au parent
+Pour avertir le parent d'une action ou lui transmettre une valeur, l'enfant déclenche un événement personnalisé via `emit()`.
+
+*Dans l'enfant :*
+```javascript
+const emit = defineEmits(['update-score']);
+function incrementScore() {
+  emit('update-score', 5); // Déclenche l'événement avec un paramètre
+}
+```
+
+*Dans le parent :*
+```html
+<ChildComponent @update-score="onUpdateScore" />
+```''',
+      ),
+    ],
+    quiz: Quiz(
+      id: 'quiz_vue_js',
+      title: 'Quiz Vue.js 3',
+      questions: [
+        Question(
+          id: 'q_vue_1',
+          questionText: 'Quelle API de Vue 3 propose les fonctions ref() et reactive() pour structurer son code de manière modulaire ?',
+          options: [
+            'L\'Options API',
+            'La Composition API',
+            'La Core API',
+            'La Reactive API'
+          ],
+          correctOptionIndex: 1,
+          explanation: 'La Composition API, introduite avec Vue 3, utilise setup(), ref() et reactive() pour organiser la logique métier par fonctionnalité.',
+        ),
+        Question(
+          id: 'q_vue_2',
+          questionText: 'Quelle directive permet d\'établir une liaison bidirectionnelle (Two-Way Binding) sur un champ texte ?',
+          options: [
+            'v-bind',
+            'v-on',
+            'v-model',
+            'v-text'
+          ],
+          correctOptionIndex: 2,
+          explanation: 'v-model synchronise automatiquement les changements de l\'input avec la variable JS et vice-versa.',
+        ),
+        Question(
+          id: 'q_vue_3',
+          questionText: 'Comment un composant enfant peut-il envoyer une information ou notifier son parent d\'une action ?',
+          options: [
+            'En modifiant directement une prop parent',
+            'En émettant un événement personnalisé (emit)',
+            'En utilisant un écouteur global du DOM',
+            'En appelant une méthode globale'
+          ],
+          correctOptionIndex: 1,
+          explanation: 'Les composants communiquent de bas en haut (de l\'enfant au parent) en déclenchant/émettant des événements personnalisés via emit.',
+        ),
+      ],
+    ),
+  ),
+  Course(
+    id: 'nestjs_backend',
+    title: 'Architecture API & Backend avec NestJS',
+    description: 'Maîtrisez la conception d\'APIs robustes, typées et modulaires en TypeScript en utilisant les contrôleurs, les services, et les modules NestJS.',
+    duration: '4 heures',
+    category: 'Web',
+    lessons: [
+      Lesson(
+        id: 'nestjs_intro',
+        title: 'Les Fondations : Contrôleurs & Services',
+        content: '''# Les Fondations de NestJS : Contrôleurs & Services
+
+**NestJS** est un framework Node.js progressif pour construire des applications côté serveur efficaces, fiables et évolutives. Il utilise TypeScript par défaut et s'inspire fortement des concepts d'architecture d'Angular.
+
+## 1. Les Contrôleurs (Controllers)
+Les contrôleurs sont responsables du traitement des **requêtes** entrantes et du renvoi des **réponses** au client. Ils sont déclarés avec le décorateur `@Controller()`.
+
+Exemple de contrôleur simple :
+```typescript
+import { Controller, Get } from '@nestjs/common';
+
+@Controller('users')
+export class UsersController {
+  @Get()
+  findAll(): string[] {
+    return ['Ezekiel', 'Alice', 'Bob'];
+  }
+}
+```
+
+---
+
+## 2. Les Fournisseurs et Services (Providers)
+Les services contiennent la logique métier principale (accès base de données, calculs, appels tiers). Un service est déclaré avec le décorateur `@Injectable()`, ce qui permet à NestJS de l'injecter automatiquement là où il est nécessaire.
+
+```typescript
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class UsersService {
+  private readonly users: string[] = [];
+
+  create(name: string) {
+    this.users.push(name);
+  }
+
+  findAll(): string[] {
+    return this.users;
+  }
+}
+```''',
+      ),
+      Lesson(
+        id: 'nestjs_di',
+        title: 'Injection de Dépendances & Modules',
+        content: '''# Injection de Dépendances & Modules
+
+NestJS est conçu autour d'un conteneur d'**Injection de Dépendances (DI)** puissant qui gère l'instanciation des classes et de leurs dépendances.
+
+## 1. Comment fonctionne l'injection de dépendances ?
+Lorsqu'un contrôleur a besoin d'un service, il le demande simplement dans son constructeur. Le conteneur NestJS résout la dépendance, crée l'instance du service (généralement un singleton) et la passe au contrôleur.
+
+```typescript
+@Controller('users')
+export class UsersController {
+  constructor(private readonly usersService: UsersService) {}
+
+  @Get()
+  findAll() {
+    return this.usersService.findAll();
+  }
+}
+```
+
+---
+
+## 2. Les Modules NestJS
+Un module est une classe décorée par `@Module()`. Les modules organisent l'application en blocs fonctionnels cohésifs. Chaque application NestJS possède au moins un module racine (l'AppModule).
+
+Les 4 propriétés d'un décorateur `@Module()` :
+* **`providers`** : Les injectables (services, helpers) qui seront instanciés par le conteneur NestJS et disponibles au moins dans ce module.
+* **`controllers`** : La liste des contrôleurs définis dans ce module à instancier.
+* **`imports`** : La liste des autres modules importés dont les providers exportés sont nécessaires dans ce module.
+* **`exports`** : Les providers définis ici qui doivent être visibles par d'autres modules qui l'importent.
+
+```typescript
+@Module({
+  imports: [],
+  controllers: [UsersController],
+  providers: [UsersService],
+  exports: [UsersService], // rend le service disponible ailleurs
+})
+export class UsersModule {}
+```''',
+      ),
+      Lesson(
+        id: 'nestjs_errors',
+        title: 'Gestion des Erreurs et Intercepteurs',
+        content: '''# Exceptions, Filtres & Intercepteurs NestJS
+
+Pour concevoir des APIs robustes de niveau production, la gestion standardisée des erreurs et la transformation des données sont essentielles.
+
+## 1. Gestion des exceptions HTTP
+NestJS fournit une classe intégrée `HttpException` et des classes dérivées pour les cas d'erreurs courants (`NotFoundException`, `BadRequestException`, `ForbiddenException`). Elles renvoient automatiquement un JSON formaté au client.
+
+```typescript
+import { NotFoundException } from '@nestjs/common';
+
+@Get(':id')
+findOne(@Param('id') id: string) {
+  const user = this.usersService.findById(id);
+  if (!user) {
+    throw new NotFoundException(`L'utilisateur avec l'ID \${id} n'existe pas.`);
+  }
+  return user;
+}
+```
+
+---
+
+## 2. Les Intercepteurs (Interceptors)
+Un intercepteur est une classe décorée par `@Injectable()` qui implémente l'interface `NestInterceptor`. Les intercepteurs ont des pouvoirs extraordinaires :
+* Lier une logique supplémentaire avant ou après l'exécution d'une méthode.
+* Transformer le résultat renvoyé par une fonction (ex: envelopper la réponse dans un objet `{ data: ... }`).
+* Prolonger ou modifier le comportement d'une fonction (ex: ajouter un timeout ou du cache).
+
+```typescript
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
+import { map } from 'rxjs/operators';
+
+@Injectable()
+export class TransformInterceptor implements NestInterceptor {
+  intercept(context: ExecutionContext, next: CallHandler) {
+    return next.handle().pipe(map(data => ({ data }))); // enveloppe la réponse dans un champ "data"
+  }
+}
+```''',
+      ),
+    ],
+    quiz: Quiz(
+      id: 'quiz_nestjs_backend',
+      title: 'Quiz NestJS Architecture',
+      questions: [
+        Question(
+          id: 'q_nest_1',
+          questionText: 'Quel décorateur de NestJS est requis pour indiquer qu\'une classe est un Service pouvant être injecté par le conteneur DI ?',
+          options: [
+            '@Inject()',
+            '@Injectable()',
+            '@Service()',
+            '@Module()'
+          ],
+          correctOptionIndex: 1,
+          explanation: '@Injectable() marque la classe comme pouvant être gérée et instanciée par le conteneur d\'injection de dépendances NestJS.',
+        ),
+        Question(
+          id: 'q_nest_2',
+          questionText: 'Comment un module NestJS expose-t-il un de ses services pour qu\'il soit utilisable par d\'autres modules ?',
+          options: [
+            'En le mettant dans la liste des "imports"',
+            'En le mettant dans la liste des "controllers"',
+            'En le mettant dans la liste des "exports"',
+            'En le déclarant global'
+          ],
+          correctOptionIndex: 2,
+          explanation: 'La propriété "exports" d\'un module permet de rendre ses providers (services) publics et importables par d\'autres modules de l\'application.',
+        ),
+        Question(
+          id: 'q_nest_3',
+          questionText: 'Quel composant NestJS est idéal pour intercepter la réponse d\'une route et formater/envelopper les données (ex: ajouter une clé globale "data") ?',
+          options: [
+            'Un Pipe de validation',
+            'Un Guard de sécurité',
+            'Un Intercepteur (Interceptor)',
+            'Un Exception Filter'
+          ],
+          correctOptionIndex: 2,
+          explanation: 'Les intercepteurs utilisent RxJS pour écouter, transformer ou modifier le flux de réponse HTTP avant qu\'il ne soit renvoyé au client.',
+        ),
+      ],
+    ),
+  ),
 ];

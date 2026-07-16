@@ -5,6 +5,7 @@ import '../courses/data/course_repository.dart';
 import '../auth/data/auth_repository.dart';
 import 'lesson_detail_screen.dart';
 import 'quiz_screen.dart';
+import 'certificate_screen.dart';
 
 class CourseDetailScreen extends ConsumerWidget {
   final Course course;
@@ -42,6 +43,9 @@ class CourseDetailScreen extends ConsumerWidget {
           final previousScore = progress.quizScores[quizId];
           final totalQuestions = course.quiz?.questions.length ?? 0;
           final hasProgress = completedLessons > 0;
+
+          final isQuizPassed = previousScore != null && totalQuestions > 0 && (previousScore / totalQuestions) >= 0.70;
+          final isEligibleForCertificate = progressPercent == 1.0 && isQuizPassed;
 
           return Stack(
             children: [
@@ -284,7 +288,7 @@ class CourseDetailScreen extends ConsumerWidget {
                 ],
               ),
 
-              // Bouton flottant de Quiz en bas d'écran (Duolingo style)
+              // Bouton flottant de Quiz ou Certificat en bas d'écran
               if (course.quiz != null)
                 Positioned(
                   bottom: 24,
@@ -293,14 +297,18 @@ class CourseDetailScreen extends ConsumerWidget {
                   child: Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: hasProgress
-                            ? [const Color(0xFF4F46E5), const Color(0xFF3B82F6)]
-                            : [const Color(0xFF94A3B8), const Color(0xFF64748B)], // Grisé si aucune progression
+                        colors: isEligibleForCertificate
+                            ? [const Color(0xFFD97706), const Color(0xFFF59E0B)] // Gold/Amber gradient
+                            : (hasProgress
+                                ? [const Color(0xFF4F46E5), const Color(0xFF3B82F6)]
+                                : [const Color(0xFF94A3B8), const Color(0xFF64748B)]), // Grisé si aucune progression
                       ),
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: (hasProgress ? const Color(0xFF4F46E5) : const Color(0xFF64748B))
+                          color: (isEligibleForCertificate
+                                  ? const Color(0xFFD97706)
+                                  : (hasProgress ? const Color(0xFF4F46E5) : const Color(0xFF64748B)))
                               .withValues(alpha: 0.3),
                           blurRadius: 16,
                           offset: const Offset(0, 6),
@@ -310,34 +318,43 @@ class CourseDetailScreen extends ConsumerWidget {
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: !hasProgress
+                        onTap: isEligibleForCertificate
                             ? () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: const Text(
-                                      "Complétez au moins une leçon avant de tenter le Quiz !",
-                                      style: TextStyle(fontWeight: FontWeight.bold),
-                                    ),
-                                    backgroundColor: const Color(0xFFF59E0B), // Orange warning
-                                    behavior: SnackBarBehavior.floating,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                );
-                              }
-                            : () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => QuizScreen(
-                                      course: course,
-                                      quiz: course.quiz!,
-                                      userId: userId,
-                                    ),
+                                    builder: (context) => CertificateScreen(course: course),
                                   ),
                                 );
-                              },
+                              }
+                            : (!hasProgress
+                                ? () {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: const Text(
+                                          "Complétez au moins une leçon avant de tenter le Quiz !",
+                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                        ),
+                                        backgroundColor: const Color(0xFFF59E0B), // Orange warning
+                                        behavior: SnackBarBehavior.floating,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                : () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => QuizScreen(
+                                          course: course,
+                                          quiz: course.quiz!,
+                                          userId: userId,
+                                        ),
+                                      ),
+                                    );
+                                  }),
                         borderRadius: BorderRadius.circular(16),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -346,14 +363,18 @@ class CourseDetailScreen extends ConsumerWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(
-                                  previousScore != null ? Icons.emoji_events_rounded : Icons.quiz_rounded,
+                                  isEligibleForCertificate
+                                      ? Icons.workspace_premium_rounded
+                                      : (previousScore != null ? Icons.emoji_events_rounded : Icons.quiz_rounded),
                                   color: Colors.white,
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  previousScore != null
-                                      ? "Relancer le Quiz (Score : $previousScore / $totalQuestions)"
-                                      : "Lancer le Quiz du cours",
+                                  isEligibleForCertificate
+                                      ? "🏆 Obtenir mon Certificat"
+                                      : (previousScore != null
+                                          ? "Relancer le Quiz (Score : $previousScore / $totalQuestions)"
+                                          : "Lancer le Quiz du cours"),
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 16,
@@ -361,7 +382,7 @@ class CourseDetailScreen extends ConsumerWidget {
                                     letterSpacing: 0.5,
                                   ),
                                 ),
-                                if (!hasProgress) ...[
+                                if (!hasProgress && !isEligibleForCertificate) ...[
                                   const SizedBox(width: 8),
                                   const Icon(
                                     Icons.lock_outline_rounded,

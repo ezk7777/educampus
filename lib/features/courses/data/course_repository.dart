@@ -110,6 +110,54 @@ class CourseRepository {
     }
   }
 
+  Future<List<Course>> getCourses() async {
+    try {
+      // 1. Lancer le seeding de Firestore si des données manquent ou sont invalides
+      await seedFirestoreIfNeeded();
+
+      final collection = _firestore.collection('courses');
+      final querySnapshot = await collection.get();
+      
+      final List<Course> courses = [];
+      for (final doc in querySnapshot.docs) {
+        try {
+          final data = doc.data();
+          data['id'] = doc.id;
+          courses.add(Course.fromMap(data, documentId: doc.id));
+        } catch (e) {
+          debugPrint("Erreur lors du parsing d'un document Firestore (getCourses) : $e");
+        }
+      }
+
+      // 2. Si Firestore est vide, fallback sur mockCourses
+      if (courses.isEmpty || courses.every((c) => c.lessons.isEmpty)) {
+        return mockCourses;
+      }
+
+      // 3. Sauvegarder dans le cache local Hive
+      try {
+        final coursesMaps = courses.map((c) => c.toMap()).toList();
+        await _hiveService.saveCourses(coursesMaps);
+      } catch (e) {
+        debugPrint("Impossible de sauvegarder les cours Firestore en cache local (getCourses) : $e");
+      }
+
+      return courses;
+    } catch (e) {
+      debugPrint("Erreur de récupération des cours sur Firestore (getCourses) : $e. Utilisation du cache local.");
+      final cachedFallback = _hiveService.getCachedCourses();
+      if (cachedFallback.isNotEmpty) {
+        try {
+          return cachedFallback.map((map) => Course.fromMap(map)).toList();
+        } catch (_) {
+          return mockCourses;
+        }
+      } else {
+        return mockCourses;
+      }
+    }
+  }
+
   Course? getCourseFromCache(String courseId) {
     final cached = _hiveService.getCachedCourses();
     final match = cached.firstWhere((map) => map['id'] == courseId, orElse: () => const {});
