@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "331526088547",
+    "project_id": "educampus-7777",
+    "storage_bucket": "educampus-7777.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:331526088547:android:2c00519f9146d867c49556",
+        "android_client_info": {
+          "package_name": "com.example.educampus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDzyW7bb1OU2TIhsaDPnpVWZ8lT64eRcfQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
